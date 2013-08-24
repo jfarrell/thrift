@@ -141,8 +141,8 @@ public class TestStruct extends TestCase {
 
     // Compare bonk1 has a field filled in that bonk2 doesn't.
     bonk1.setType(123);
-    assertTrue(bonk1.compareTo(bonk2) > 0);
-    assertTrue(bonk2.compareTo(bonk1) < 0);
+    assertTrue(bonk1.compareTo(bonk2) < 0);
+    assertTrue(bonk2.compareTo(bonk1) > 0);
 
     // Compare bonk1 and bonk2 equal.
     bonk2.setType(123);
