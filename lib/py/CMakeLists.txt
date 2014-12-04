@@ -1,6 +1,3 @@
-#!/bin/sh
-
-#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -19,28 +16,16 @@
 # under the License.
 #
 
-./cleanup.sh
-if test -d lib/php/src/ext/thrift_protocol ; then
-    if phpize -v >/dev/null 2>/dev/null ; then
-        (cd lib/php/src/ext/thrift_protocol && phpize)
-    fi
-fi
+project("Python client library")
 
-set -e
+configure_file ("setup.py.in" "setup.py" @ONLY)
 
-# libtoolize is called "glibtoolize" on OSX.
-if libtoolize --version 1 >/dev/null 2>/dev/null; then
-  LIBTOOLIZE=libtoolize
-elif glibtoolize --version 1 >/dev/null 2>/dev/null; then
-  LIBTOOLIZE=glibtoolize
-else
-  echo >&2 "Couldn't find libtoolize!"
-  exit 1
-fi
+set(PY_SDIST_NAME "thrift-${PACKAGE_VERSION}.tar.gz")
 
-autoscan
-$LIBTOOLIZE --copy --automake
-aclocal -I ./aclocal
-autoheader
-autoconf
-automake --copy --add-missing --foreign
+add_custom_target(py_sdist ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dist/${PY_SDIST_NAME})
+
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dist/${PY_SDIST_NAME}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND "${PYTHON_EXECUTABLE}" "setup.py" "build"
+  COMMAND "${PYTHON_EXECUTABLE}" "setup.py" "build" "sdist")

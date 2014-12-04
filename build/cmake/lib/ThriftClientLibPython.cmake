@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -17,17 +16,16 @@
 # under the License.
 #
 
-if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
-  File.open('Makefile', 'w'){|f| f.puts "all:\n\ninstall:\n" }
-else
-  require 'mkmf'
-  require 'rbconfig'
+include("${CMAKE_ROOT}/Modules/FindPythonInterp.cmake")
 
-  $ARCH_FLAGS = RbConfig::CONFIG['CFLAGS'].scan( /(-arch )(\S+)/ ).map{|x,y| x + y + ' ' }.join('')
+option(with-python "Build the Python client library" ON)
 
-  $CFLAGS = "-fsigned-char -g -O2 -Wall -Werror " + $ARCH_FLAGS
+find_program(PYTHON_EXECUTABLE NAMES python)
 
-  have_func("strlcpy", "string.h")
+if (NOT PYTHON_EXECUTABLE)
+  SET(with-python OFF CACHE BOOL "Build the Python client library")
+endif()
 
-  create_makefile 'thrift_native'
-end
+if (with-python)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/lib/py)
+endif()

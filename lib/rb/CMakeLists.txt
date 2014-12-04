@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -17,17 +16,18 @@
 # under the License.
 #
 
-if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
-  File.open('Makefile', 'w'){|f| f.puts "all:\n\ninstall:\n" }
-else
-  require 'mkmf'
-  require 'rbconfig'
+project("Ruby client library")
 
-  $ARCH_FLAGS = RbConfig::CONFIG['CFLAGS'].scan( /(-arch )(\S+)/ ).map{|x,y| x + y + ' ' }.join('')
+configure_file ("thrift.gemspec.in" "thrift.gemspec" @ONLY)
 
-  $CFLAGS = "-fsigned-char -g -O2 -Wall -Werror " + $ARCH_FLAGS
+set(GEM_NAME "thrift-${PACKAGE_VERSION}.gem")
 
-  have_func("strlcpy", "string.h")
+add_custom_target(ruby_gem ALL DEPENDS ${GEM_NAME})
 
-  create_makefile 'thrift_native'
-end
+add_custom_command(
+  OUTPUT ${GEM_NAME}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND "${BUNDLER_EXECUTABLE}" "install"
+  COMMAND "${BUNDLER_EXECUTABLE}" "exec" "rake")
+
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${GEM_NAME})

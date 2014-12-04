@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -17,33 +16,28 @@
 # under the License.
 #
 
-DESTDIR ?= /
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+project("Apache Thrift")
 
-if HAVE_BUNDLER
+set(VERSION "0.9.3")
 
-all-local:
-	$(BUNDLER) install
-	$(BUNDLER) exec rake
+set(PACKAGE_BUGREPORT "https://issues.apache.org/jira/browse/THRIFT")
+set(PACKAGE_NAME ${PACKAGE})
+set(PACKAGE_VERSION ${VERSION})
+set(PACKAGE_STRING ${PACKAGE})
 
-install-exec-hook:
-	$(BUNDLER) exec rake install
+# cmake module inclusion
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/build/cmake/lib;${PROJECT_SOURCE_DIR}/build/cmake)
 
-clean-local:
-	$(BUNDLER) exec rake clean
+include(ThriftDefaults)
 
-check-local: all
-	$(BUNDLER) install
-	$(BUNDLER) exec rake
+# Compiler
+option(WITH_COMPILER "Build the compiler" ON)
 
-endif
+if(WITH_COMPILER)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/compiler/cpp)
+endif()
 
-EXTRA_DIST = \
-	Rakefile \
-	Gemfile \
-	thrift.gemspec \
-	lib \
-	ext \
-	benchmark \
-	script \
-	spec \
-	README.md
+# Client libraries
+include(ThriftClientLibPython)
+include(ThriftClientLibRuby)
